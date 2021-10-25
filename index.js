@@ -2,12 +2,12 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const morgan = require("morgan")
+const morgan = require('morgan')
 const Person = require('./models/person')
 
 app.use(express.json())
 
-app.use(morgan("tiny"))
+app.use(morgan('tiny'))
 
 app.use(cors())
 app.use(express.static('build'))
@@ -44,16 +44,16 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
+        .then(() => {
             response.status(204).end()
         })
         .catch(error => next(error))
 })
 
 
-morgan.token("body", (req) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 
-app.post('/api/persons', morgan(":body"), (request, response, next) => {
+app.post('/api/persons', morgan(':body'), (request, response, next) => {
     const body = request.body
 
     const person = new Person({
@@ -76,10 +76,10 @@ app.put('/api/persons/:id', (request, response, next) => {
     }
 
     Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true })
+        .orFail(() => new Error('Not Found'))
         .then(updatedPerson => {
             response.json(updatedPerson)
         })
-        .orFail()
         .catch(error => {
             next(error)
         })
